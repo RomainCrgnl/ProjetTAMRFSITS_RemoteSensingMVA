@@ -1,4 +1,7 @@
 ./test/
 tamrfsits
 dataset
+model
+
 *.zip
+__pycache__

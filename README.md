@@ -1,5 +1,16 @@
 # Project 4: Predicting the future to detect changes
 
+## Project architecture
+```
+.
+├── tamrfsits/*        # TAMRF model github repository
+├── dataset/*          # Containing the training / test samples
+├── notebooks/*.ipynb  # Experimental studies
+├── src/*.py           # Code for the final solution
+├── .gitignore
+└── README.md
+```
+
 ## Installation:
 ```sh
 git clone https://github.com/RomainCrgnl/ProjetTAMRFSITS_RemoteSensingMVA.git
@@ -37,13 +48,3 @@ pixi shell
 ```
 
 
-## Project architecture
-```
-.
-├── tamrfsits/*        # TAMRF model github repository
-├── dataset/*          # Containing the training / test samples
-├── notebooks/*.ipynb  # Experimental studies
-├── src/*.py           # Code for the final solution
-├── .gitignore
-└── README.md
-```

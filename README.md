@@ -5,6 +5,11 @@
 git clone https://github.com/RomainCrgnl/ProjetTAMRFSITS_RemoteSensingMVA.git
 cd ProjetTAMRFSITS_RemoteSensingMVA
 ```
+#### Download training/test data:
+Download the dataset: https://zenodo.org/records/15471890
+
+Unzip archives inside the "dataset" folder.
+
 
 #### Download TAMRF model github repository and dependancies:
 
@@ -36,6 +41,7 @@ pixi shell
 ```
 .
 ├── tamrfsits/*  # TAMRF model github repository
+├── dataset/*  # Containing the training / test samples
 ├── .gitignore
 └── README.md
 ```

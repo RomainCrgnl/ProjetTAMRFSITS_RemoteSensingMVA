@@ -40,8 +40,10 @@ pixi shell
 ## Project architecture
 ```
 .
-├── tamrfsits/*  # TAMRF model github repository
-├── dataset/*  # Containing the training / test samples
+├── tamrfsits/*        # TAMRF model github repository
+├── dataset/*          # Containing the training / test samples
+├── notebooks/*.ipynb  # Experimental studies
+├── src/*.py           # Code for the final solution
 ├── .gitignore
 └── README.md
 ```

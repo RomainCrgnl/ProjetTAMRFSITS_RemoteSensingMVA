@@ -26,10 +26,10 @@ TORCH_NUM_THREADS=4 PYTHONOPTIMIZE=TRUE PYTORCH_CUDA_ALLOC_CONF=expandable_segme
 --width 1650 \
 --subtile_width 165 \
 --margin 30 \
---dt_orig 2022-01-01 \
---forecast_doy_start 350 \
+--forecast_doy_start 327 \
 --show_subtile_progress \
 --device cpu \
 --write_images \
 --generate_animation
+#--dt_orig 2022-01-01 \
 #--disable_metrics \

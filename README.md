@@ -48,7 +48,7 @@ Environment can be activated by using:
 pixi shell
 ```
 
-## Download pre-trained model
+#### Download pre-trained model
 
 Pre-trained TAMRFSITS model is available in the following [Zenodo](https://zenodo.org/records/15582231) repository.
 

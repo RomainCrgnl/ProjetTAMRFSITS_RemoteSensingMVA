@@ -53,3 +53,5 @@ pixi shell
 Pre-trained TAMRFSITS model is available in the following [Zenodo](https://zenodo.org/records/15582231) repository.
 
 > MICHEL, J. (2025). Support data for paper "Temporal Attention Multi-Resolution Fusion of Satellite Image Time-Series, applied to Landsat-8 and Sentinel-2: all bands, any time, at best spatial resolution" (2.0) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.17474541
+
+Unzip archives inside the project root directory.

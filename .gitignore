@@ -3,5 +3,6 @@ tamrfsits
 dataset
 model
 
+*.gif
 *.zip
 __pycache__

@@ -7,9 +7,11 @@ TORCH_NUM_THREADS=4 PYTHONOPTIMIZE=TRUE PYTORCH_CUDA_ALLOC_CONF=expandable_segme
 --strategy FORECAST \
 --width 1650 \
 --subtile_width 165 \
---forecast_doy_start 355 \
---write_images \
---device cpu \
---disable_metrics \
+--margin 20 \
+--forecast_doy_start 327 \
 --show_subtile_progress \
-#--generate_animation
+--device cpu \
+--write_images \
+--generate_animation
+#--dt_orig 2022-01-01 \
+#--disable_metrics \

@@ -2,6 +2,7 @@ import os
 import rasterio
 from rasterio.enums import Resampling
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import numpy as np
 from pathlib import Path
 from datetime import datetime
@@ -15,11 +16,19 @@ def process_tiff(file_path, low_res=True):
             img_data = src.read(out_shape=out_shape, resampling=Resampling.nearest)
         else:
             img_data = src.read()
-            
+
     img_data = img_data.astype(np.float32) 
     img_data[img_data == -10000] = np.nan
-    img_data /= 10000.0                   
+    img_data /= 10_000
     return img_data
+
+def get_rgb_image(img_data):
+    """Extracts Red(B4), Green(B3), Blue(B2) and applies a basic contrast stretch."""
+    # indices: B4=2, B3=1, B2=0
+    rgb = np.stack([img_data[2], img_data[1], img_data[0]], axis=-1)
+    # Clip and scale to 0-1 for matplotlib, replacing NaNs with 0 (black) for the RGB view
+    rgb = np.nan_to_num(rgb, nan=0.0)
+    return np.clip(rgb / 0.3, 0, 1)
 
 def launch_timeseries_viewer(base_dir):
     base_path = Path(base_dir)
@@ -41,19 +50,36 @@ def launch_timeseries_viewer(base_dir):
     if 'right' in plt.rcParams['keymap.forward']:
         plt.rcParams['keymap.forward'].remove('right')
 
-    fig, axes = plt.subplots(2, 5, figsize=(20, 8), sharex=True, sharey=True)
-    axes = axes.flatten()
+    # Setup GridSpec: 2 rows, 7 columns
+    fig = plt.figure(figsize=(22, 8))
+    gs = gridspec.GridSpec(2, 7, figure=fig)
     
+    all_axes = []
+    
+    # 1. Create the Large RGB Axis (spans rows 0-1, cols 0-1)
+    ax_rgb = fig.add_subplot(gs[0:2, 0:2])
+    im_rgb = ax_rgb.imshow(np.zeros((330, 330, 3)), extent=[0, 990, 990, 0])
+    ax_rgb.set_title("True Color (RGB)")
+    ax_rgb.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
+    all_axes.append(ax_rgb)
+
+    # 2. Create the 10 Individual Band Axes (cols 2 to 6)
+    band_axes = []
     im_objects = []
     for i in range(10):
-        # CRITICAL TRICK: We set extent=[0, 990, 990, 0]. 
-        # This forces both low-res (330) and high-res (990) arrays to share the exact same coordinate space!
-        im = axes[i].imshow(np.zeros((330, 330)), cmap='gray', vmin=0, vmax=0.3, extent=[0, 990, 990, 0])
-        axes[i].set_title(band_names[i])
-        axes[i].tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
+        row = i // 5
+        col = (i % 5) + 2
+        # Link panning/zooming to the RGB axis
+        ax = fig.add_subplot(gs[row, col], sharex=ax_rgb, sharey=ax_rgb) 
+        band_axes.append(ax)
+        all_axes.append(ax)
+        
+        im = ax.imshow(np.zeros((330, 330)), cmap='gray', vmin=0, vmax=0.3, extent=[0, 990, 990, 0])
+        ax.set_title(band_names[i])
+        ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
         im_objects.append(im)
         
-        cbar = fig.colorbar(im, ax=axes[i], fraction=0.046, pad=0.04)
+        cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
         cbar.ax.tick_params(labelsize=8)
 
     plt.tight_layout()
@@ -65,7 +91,6 @@ def launch_timeseries_viewer(base_dir):
     executor = ThreadPoolExecutor(max_workers=2)
 
     def manage_cache(current_idx):
-        """Keeps low-res images pre-loaded in the background."""
         target_indices = [current_idx]
         if current_idx > 0: target_indices.append(current_idx - 1)
         if current_idx < len(tif_files) - 1: target_indices.append(current_idx + 1)
@@ -80,13 +105,10 @@ def launch_timeseries_viewer(base_dir):
             del cache[k]
 
     def is_zoomed_in():
-        """Checks if the user is currently zoomed in."""
-        xlim = axes[0].get_xlim()
-        # Full width is 990. If the view width is smaller than 950, they zoomed.
+        xlim = ax_rgb.get_xlim()
         return abs(xlim[1] - xlim[0]) < 950
 
     def update_display():
-        """Updates the image data when arrow keys are pressed."""
         idx = state['current_index']
         current_file = tif_files[idx]
         
@@ -98,25 +120,25 @@ def launch_timeseries_viewer(base_dir):
         
         manage_cache(idx)
         
-        # If navigating while already zoomed in, fetch high-res immediately
         if is_zoomed_in():
             img_data = process_tiff(current_file, low_res=False)
             state['is_high_res'] = True
         else:
-            # If zoomed out, use the lightning-fast low-res cache
             img_data = cache[idx].result()
             state['is_high_res'] = False
             
+        # Update RGB
+        im_rgb.set_data(get_rgb_image(img_data))
+            
+        # Update Individual Bands
         for i in range(10):
             im_objects[i].set_data(img_data[i])
             
         fig.canvas.draw_idle()
 
     def on_xlim_changed(ax):
-        """Triggered automatically when the user zooms or pans."""
         zoomed = is_zoomed_in()
         
-        # If they zoom IN and we are currently in low res: upgrade to high res!
         if zoomed and not state['is_high_res']:
             state['is_high_res'] = True
             print("Zoom detected! Enhancing to native 10m resolution...")
@@ -124,19 +146,20 @@ def launch_timeseries_viewer(base_dir):
             current_file = tif_files[state['current_index']]
             img_data = process_tiff(current_file, low_res=False)
             
+            im_rgb.set_data(get_rgb_image(img_data))
             for i in range(10): im_objects[i].set_data(img_data[i])
-            fig.canvas.draw_idle()
             
-            # Update title to show high-res is active
+            fig.canvas.draw_idle()
             update_title_only()
             
-        # If they zoom OUT to full view and we are in high res: revert to low res for speed!
         elif not zoomed and state['is_high_res']:
             state['is_high_res'] = False
             print("Zoom reset! Reverting to proxy resolution for fast scrolling...")
             
             img_data = cache[state['current_index']].result()
+            im_rgb.set_data(get_rgb_image(img_data))
             for i in range(10): im_objects[i].set_data(img_data[i])
+            
             fig.canvas.draw_idle()
             update_title_only()
 
@@ -158,7 +181,7 @@ def launch_timeseries_viewer(base_dir):
             update_display()
 
     # Bind the zoom detector to all axes
-    for ax in axes:
+    for ax in all_axes:
         ax.callbacks.connect('xlim_changed', on_xlim_changed)
 
     fig.canvas.mpl_connect('key_press_event', on_key_press)

@@ -25,9 +25,13 @@ Unzip archives inside the "dataset" folder.
 
 #### Download TAMRF model github repository and dependancies:
 
-This project uses [pixi](https://pixi.sh) as package manager and project configuration tool. Install `pixi` like this:
+This project uses [pixi](https://pixi.sh) as package manager and project configuration tool. Install `pixi` like this for Linux:
 ```sh
 curl -fsSL https://pixi.sh/install.sh | bash
+```
+or like this for Windows:
+```sh
+powershell -ExecutionPolicy Bypass -c "irm -useb https://pixi.sh/install.ps1 | iex"
 ```
 
 Clone the `tamrfsits` sources like this:

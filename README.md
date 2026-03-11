@@ -36,7 +36,7 @@ powershell -ExecutionPolicy Bypass -c "irm -useb https://pixi.sh/install.ps1 | i
 
 Clone the `tamrfsits` sources like this:
 ```sh
-git clone https://github.com/Evoland-Land-Monitoring-Evolution/tamrfsits
+git clone https://github.com/TopAgrume/tamrfsits.git
 ```
 
 And use `pixi` to install the project and its dependencies:

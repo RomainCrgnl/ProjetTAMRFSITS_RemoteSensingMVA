@@ -3,6 +3,12 @@ tamrfsits
 dataset
 model
 forecasting
+all/
+tamrfsits/
+pyproject.toml
+hello.py
+.python-version
+uv.lock
 
 *.gif
 *.zip

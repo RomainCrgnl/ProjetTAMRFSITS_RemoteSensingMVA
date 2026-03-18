@@ -683,11 +683,17 @@ def load_images(cfg):
     #     im2 = iio.imread(cfg.image2)
 
     with rasterio.open(cfg.image1) as src1:
-        im1 = src1.read()
+        im1 = src1.read().astype(np.float32)
         profile = src1.profile
-    
+
     with rasterio.open(cfg.image2) as src2:
-        im2 = src2.read()
+        im2 = src2.read().astype(np.float32)
+
+    im1 = im1 / 10000.0
+    im2 = im2 / 10000.0
+
+    im1[im1 < 0] = np.nan
+    im2[im2 < 0] = np.nan
 
     return im1, im2, profile
 

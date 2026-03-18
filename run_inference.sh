@@ -17,16 +17,16 @@ echo "Output folder: $RUN_DIR"
 
 # command
 TORCH_NUM_THREADS=4 PYTHONOPTIMIZE=TRUE PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True python tamrfsits/bin/test.py \
---ts ${PWD}/dataset/test/ \
+--ts ${PWD}/dataset/31UES_12/ \
 --output ${PWD}/$RUN_DIR \
 --checkpoint ${PWD}/model/tamrfsits_pretrained_2015974.ckpt \
 --config ${PWD}/model/hydra_config/ \
 --algorithm TAMRFSITS \
 --strategy CUSTOM_FORECAST \
 --width 1650 \
---patch_idx 0 \
+--patch_idx 1 \
 --subtile_width 165 \
---margin 30 \
+--margin 1 \
 --forecast_doy_start 318 \
 --custom_forecast_context_size 5 \
 --custom_forecast_gap_step 1 \
@@ -35,8 +35,17 @@ TORCH_NUM_THREADS=4 PYTHONOPTIMIZE=TRUE PYTORCH_CUDA_ALLOC_CONF=expandable_segme
 --show_subtile_progress \
 --device cpu \
 --write_images \
+--disable_metrics \
 --generate_animation \
+--custom_forecast_sliding_window \
 
+# --generate_animation \
 #--custom_forecast_only_hr \
 #--patch_idx # index du patch dans l'image, surement [0, 35]
 #--disable_metrics \
+
+
+# INFOS:
+# 30SWH_24: --patch_idx: 19 / 25 ; --margin 1 (images 11 à 12)
+# 31TCJ_12: --patch_idx: 19 ; --margin 1 (images 8 à 22)
+# 31UES_12: --patch_idx 1 ; --margin 1 (images 5 à 8)

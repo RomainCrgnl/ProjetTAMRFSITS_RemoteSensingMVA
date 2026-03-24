@@ -168,9 +168,7 @@ def launch_comparison_viewer(run_dir):
         except ValueError:
             parsed_date = raw_date_str
 
-        fig.suptitle(f"Comparaison | Date: {parsed_date} "
-                     f"({idx + 1}/{len(file_triplets)})", 
-                     fontsize=16, fontweight='bold')
+        fig.suptitle(f"{parsed_date}", fontsize=20, fontweight='bold')
         
         manage_cache(idx)
         
@@ -210,7 +208,8 @@ def launch_comparison_viewer(run_dir):
     
     plt.show()
 
+
 if __name__ == "__main__":
     name = "run_009"
-    run_dir = os.path.join("..", "dataset", "test", "all", "all", name)
+    run_dir = os.path.join("..", "all", name)
     launch_comparison_viewer(run_dir)

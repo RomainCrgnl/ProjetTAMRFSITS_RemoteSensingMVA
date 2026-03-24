@@ -125,7 +125,6 @@ def launch_comparison_viewer(run_dir):
     timeline = []
     
     if max_dates_per_loc == 1:
-        # Fallback : S'il n'y a qu'une date par scène identifiée, on crée une liste chronologique globale
         print("Fallback activé : Les localisations n'ont qu'une seule date. Navigation globale chronologique.")
         flat_scenes = []
         for loc_id, dates in scenes.items():
@@ -145,7 +144,6 @@ def launch_comparison_viewer(run_dir):
                 'prev': prev_data
             })
     else:
-        # Normal : Regroupement multi-dates respecté
         for loc_id in sorted(scenes.keys()):
             sorted_dates = sorted(scenes[loc_id].keys())
             for i, date_str in enumerate(sorted_dates):
@@ -184,12 +182,12 @@ def launch_comparison_viewer(run_dir):
     ax_pred.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
     ax_cd = fig.add_subplot(gs[0, 2], sharex=ax_ref, sharey=ax_ref) 
-    ax_cd.set_title("Change Detection (HUV Cube)", fontsize=14)
+    ax_cd.set_title("Détection de Changement (Kervrann et al.)", fontsize=14)
     ax_cd.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
     # Ligne 2
     ax_ref2 = fig.add_subplot(gs[1, 0], sharex=ax_ref, sharey=ax_ref)
-    ax_ref2.set_title("Référence (t) (Rappel)", fontsize=14)
+    ax_ref2.set_title("Référence (t)", fontsize=14)
     ax_ref2.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
     ax_prev_ref = fig.add_subplot(gs[1, 1], sharex=ax_ref, sharey=ax_ref)
@@ -197,13 +195,14 @@ def launch_comparison_viewer(run_dir):
     ax_prev_ref.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
     ax_naive_cd = fig.add_subplot(gs[1, 2], sharex=ax_ref, sharey=ax_ref)
-    ax_naive_cd.set_title("Naive Change Detection", fontsize=14)
+    ax_naive_cd.set_title("Détection de Changement (Kervrann et al.)", fontsize=14)
     ax_naive_cd.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
     im_refs = {'ref': None, 'pred': None, 'cd': None, 'ref2': None, 'prev_ref': None, 'naive_cd': None}
 
     plt.tight_layout()
-    plt.subplots_adjust(top=0.90)
+    # MODIFICATION 1: Ajout de 'hspace=0.4' pour espacer verticalement les deux lignes
+    plt.subplots_adjust(top=0.90, hspace=0.4)
 
     # 4. Gestion de l'état et du cache
     state = {'current_index': 0}
@@ -245,17 +244,9 @@ def launch_comparison_viewer(run_dir):
             parsed_date = datetime.strptime(raw_date_str, "%Y-%m-%d").date().strftime('%Y-%m-%d')
         except ValueError:
             parsed_date = raw_date_str
-            
-        prev_date_str = "N/A"
-        if item['prev']:
-            try:
-                prev_date_str = datetime.strptime(item['prev']['date'], "%Y-%m-%d").date().strftime('%Y-%m-%d')
-            except ValueError:
-                prev_date_str = item['prev']['date']
 
-        fig.suptitle(f"Location ID: {item['patch_id']} | Date(t): {parsed_date} | Date(t-1): {prev_date_str} "
-                     f"({idx + 1}/{len(timeline)})", 
-                     fontsize=16, fontweight='bold')
+        # MODIFICATION 2: Titre simplifié avec seulement la date t
+        fig.suptitle(f"{parsed_date}", fontsize=20, fontweight='bold')
         
         manage_cache(idx)
         
@@ -276,10 +267,8 @@ def launch_comparison_viewer(run_dir):
         disp_cd = get_cd_display(cur_cd) if cur_cd is not None else black_img_rgb
         rgb_prev_ref = get_rgb_image(prev_ref) if prev_ref is not None else black_img_rgb
         
-        # Traitement direct du dossier naive_change_detection
         disp_naive_cd = get_cd_display(cur_naive_cd) if cur_naive_cd is not None else black_img_rgb
 
-        # Suppression systématique de l'affichage précédent pour éviter les conflits de dimensions
         if im_refs['ref'] is not None:
             try:
                 im_refs['ref'].remove()
@@ -314,6 +303,6 @@ def launch_comparison_viewer(run_dir):
     plt.show()
 
 if __name__ == "__main__":
-    name = "run_011"
+    name = "run_009"
     run_dir = os.path.join("..", "all", name)
     launch_comparison_viewer(run_dir)

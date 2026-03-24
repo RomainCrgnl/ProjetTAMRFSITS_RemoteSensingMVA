@@ -83,7 +83,7 @@ def launch_timeseries_viewer(base_dir):
         cbar.ax.tick_params(labelsize=8)
 
     plt.tight_layout()
-    plt.subplots_adjust(top=0.88)
+    #plt.subplots_adjust(top=0.88)
 
     # State management
     state = {'current_index': 0, 'is_high_res': False}
@@ -114,9 +114,9 @@ def launch_timeseries_viewer(base_dir):
         
         raw_date_str = current_file.stem.split('_')[-1] 
         parsed_date = datetime.strptime(raw_date_str, "%Y%m%d").date()
-        fig.suptitle(f"Sentinel-2 | Date: {parsed_date.strftime('%Y-%m-%d')} "
-                     f"({idx + 1}/{len(tif_files)}) | High-Res Mode: {state['is_high_res']}", 
-                     fontsize=14, fontweight='bold')
+        # fig.suptitle(f"Sentinel-2 | Date: {parsed_date.strftime('%Y-%m-%d')} "
+        #              f"({idx + 1}/{len(tif_files)}) | High-Res Mode: {state['is_high_res']}", 
+        #              fontsize=14, fontweight='bold')
         
         manage_cache(idx)
         
@@ -187,8 +187,11 @@ def launch_timeseries_viewer(base_dir):
     fig.canvas.mpl_connect('key_press_event', on_key_press)
     update_display()
     
+    plt.tight_layout()
     plt.show()
 
 if __name__ == "__main__":
-    dataset_dir = os.path.join(".", "dataset", "test", "31TCJ_12", "sentinel2")
+    # dataset_dir = os.path.join(".", "dataset", "test", "31TCJ_12", "sentinel2")
+    name = "31UES_12"
+    dataset_dir = os.path.join("..", "dataset", "test", "kept", f"test_{name}", "test", name, "sentinel2")
     launch_timeseries_viewer(dataset_dir)

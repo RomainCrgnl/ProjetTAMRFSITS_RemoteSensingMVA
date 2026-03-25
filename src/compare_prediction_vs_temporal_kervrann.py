@@ -12,7 +12,7 @@ def process_tiff(file_path):
     with rasterio.open(file_path) as src:
         img_data = src.read()
 
-    img_data = img_data.astype(np.float32) 
+    img_data = img_data.astype(np.float32)
     img_data[img_data == -10000] = np.nan
     img_data /= 10_000
     return img_data
@@ -36,19 +36,19 @@ def get_cd_display(img_data):
     if img_data is None:
         return None
     img_data = np.nan_to_num(img_data, nan=0.0)
-    
+
     if img_data.shape[0] >= 3:
         display_img = np.stack([img_data[0], img_data[1], img_data[2]], axis=-1)
     else:
         display_img = img_data[0]
-        
+
     img_min = display_img.min()
     img_max = display_img.max()
     ptp = img_max - img_min
-    
+
     if ptp > 0:
         display_img = (display_img - img_min) / ptp
-        
+
     return display_img
 
 def extract_date_from_filename(filename):
@@ -62,35 +62,35 @@ def launch_comparison_viewer(run_dir):
     run_path = Path(run_dir)
     pred_dir = run_path / "predictions"
     cd_dir = run_path / "change_detection"
-    naive_cd_dir = run_path / "naive_change_detection"
-    
+    naive_cd_dir = run_path / "change_detection_1"
+
     if not pred_dir.exists() or not cd_dir.exists():
         print(f"Erreur: Assurez-vous que les dossiers 'predictions' et 'change_detection' existent dans {run_dir}")
         return
 
     # 1. Regrouper tous les fichiers disponibles
     scenes = {}
-    
+
     for p in pred_dir.rglob("*.tif*"):
         if "_pred" in p.name or "_ref" in p.name:
             ext = ".tiff" if p.name.endswith(".tiff") else ".tif"
             is_pred = "_pred" in p.name
             base_name = p.name.replace(f"_pred{ext}", "").replace(f"_ref{ext}", "")
-            
+
             parts = base_name.split('_')
             date_str = parts[1] if len(parts) > 1 else "Unknown"
-            
+
             # Reconstruire un identifiant de localisation (ignorer la date)
             if len(parts) > 1:
                 loc_id = parts[0] + "_" + "_".join(parts[2:])
             else:
                 loc_id = base_name
-            
+
             if loc_id not in scenes:
                 scenes[loc_id] = {}
             if date_str not in scenes[loc_id]:
                 scenes[loc_id][date_str] = {'ref': None, 'pred': None, 'cd': None, 'naive_cd': None, 'base_name': base_name}
-            
+
             if is_pred:
                 scenes[loc_id][date_str]['pred'] = p
             else:
@@ -100,7 +100,7 @@ def launch_comparison_viewer(run_dir):
     for loc_id, dates in scenes.items():
         for date_str, data in dates.items():
             base_name = data['base_name']
-            
+
             # CD Normal
             cd_file = cd_dir / base_name / "huv_final_cube.tif"
             if not cd_file.exists():
@@ -109,7 +109,7 @@ def launch_comparison_viewer(run_dir):
                     cd_file = possible_cds[0]
             if cd_file.exists():
                 data['cd'] = cd_file
-                
+
             # Naive CD (Même structure que Change Detection)
             if naive_cd_dir.exists():
                 naive_cd_file = naive_cd_dir / base_name / "huv_final_cube.tif"
@@ -123,7 +123,7 @@ def launch_comparison_viewer(run_dir):
     # 2. Construire la timeline
     max_dates_per_loc = max([len(dates) for dates in scenes.values()]) if scenes else 0
     timeline = []
-    
+
     if max_dates_per_loc == 1:
         print("Fallback activé : Les localisations n'ont qu'une seule date. Navigation globale chronologique.")
         flat_scenes = []
@@ -132,9 +132,9 @@ def launch_comparison_viewer(run_dir):
                 data['loc_id'] = loc_id
                 data['date'] = date_str
                 flat_scenes.append(data)
-                
+
         flat_scenes.sort(key=lambda x: x['date'])
-        
+
         for i, data in enumerate(flat_scenes):
             prev_data = flat_scenes[i-1] if i > 0 else None
             timeline.append({
@@ -149,18 +149,18 @@ def launch_comparison_viewer(run_dir):
             for i, date_str in enumerate(sorted_dates):
                 current_data = scenes[loc_id][date_str]
                 prev_data = scenes[loc_id][sorted_dates[i-1]] if i > 0 else None
-                
+
                 timeline.append({
                     'patch_id': loc_id,
                     'date': date_str,
                     'current': current_data,
                     'prev': prev_data
                 })
-    
+
     if not timeline:
         print("Aucun fichier pertinent trouvé.")
         return
-        
+
     print(f"Trouvé {len(timeline)} scènes dans la timeline temporelle. Lancement du viewer...")
 
     # 3. Configuration de l'interface (2 lignes, 3 colonnes)
@@ -171,17 +171,17 @@ def launch_comparison_viewer(run_dir):
 
     fig = plt.figure(figsize=(24, 14))
     gs = gridspec.GridSpec(2, 3, figure=fig)
-    
+
     # Ligne 1
     ax_ref = fig.add_subplot(gs[0, 0])
     ax_ref.set_title("Référence (t)", fontsize=14)
     ax_ref.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
-    ax_pred = fig.add_subplot(gs[0, 1], sharex=ax_ref, sharey=ax_ref) 
+    ax_pred = fig.add_subplot(gs[0, 1], sharex=ax_ref, sharey=ax_ref)
     ax_pred.set_title("Prédiction (t)", fontsize=14)
     ax_pred.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
-    ax_cd = fig.add_subplot(gs[0, 2], sharex=ax_ref, sharey=ax_ref) 
+    ax_cd = fig.add_subplot(gs[0, 2], sharex=ax_ref, sharey=ax_ref)
     ax_cd.set_title("Détection de Changement (Kervrann et al.)", fontsize=14)
     ax_cd.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
@@ -206,7 +206,7 @@ def launch_comparison_viewer(run_dir):
 
     # 4. Gestion de l'état et du cache
     state = {'current_index': 0}
-    cache = {} 
+    cache = {}
     executor = ThreadPoolExecutor(max_workers=2)
 
     def load_data(item):
@@ -214,22 +214,22 @@ def launch_comparison_viewer(run_dir):
         cur_pred = process_tiff(item['current']['pred']) if item['current']['pred'] else None
         cur_cd = process_cd_tiff(item['current']['cd']) if item['current']['cd'] else None
         cur_naive_cd = process_cd_tiff(item['current']['naive_cd']) if item['current']['naive_cd'] else None
-        
+
         prev_ref = None
         if item['prev'] and item['prev']['ref']:
             prev_ref = process_tiff(item['prev']['ref'])
-            
+
         return cur_ref, cur_pred, cur_cd, prev_ref, cur_naive_cd
 
     def manage_cache(current_idx):
         target_indices = [current_idx]
         if current_idx > 0: target_indices.append(current_idx - 1)
         if current_idx < len(timeline) - 1: target_indices.append(current_idx + 1)
-            
+
         for idx in target_indices:
             if idx not in cache:
                 cache[idx] = executor.submit(load_data, timeline[idx])
-                
+
         keys_to_remove = [k for k in cache.keys() if abs(k - current_idx) > 2]
         for k in keys_to_remove:
             cache[k].cancel()
@@ -238,7 +238,7 @@ def launch_comparison_viewer(run_dir):
     def update_display():
         idx = state['current_index']
         item = timeline[idx]
-        
+
         raw_date_str = item['date']
         try:
             parsed_date = datetime.strptime(raw_date_str, "%Y-%m-%d").date().strftime('%Y-%m-%d')
@@ -247,11 +247,11 @@ def launch_comparison_viewer(run_dir):
 
         # MODIFICATION 2: Titre simplifié avec seulement la date t
         fig.suptitle(f"{parsed_date}", fontsize=20, fontweight='bold')
-        
+
         manage_cache(idx)
-        
+
         cur_ref, cur_pred, cur_cd, prev_ref, cur_naive_cd = cache[idx].result()
-        
+
         valid_img = cur_ref if cur_ref is not None else (cur_pred if cur_pred is not None else None)
         h, w = (256, 256)
         if valid_img is not None:
@@ -259,14 +259,14 @@ def launch_comparison_viewer(run_dir):
                 h, w = valid_img.shape[1], valid_img.shape[2]
             else:
                 h, w = valid_img.shape[0], valid_img.shape[1]
-                
+
         black_img_rgb = np.zeros((h, w, 3), dtype=np.float32)
 
         rgb_ref = get_rgb_image(cur_ref) if cur_ref is not None else black_img_rgb
         rgb_pred = get_rgb_image(cur_pred) if cur_pred is not None else black_img_rgb
         disp_cd = get_cd_display(cur_cd) if cur_cd is not None else black_img_rgb
         rgb_prev_ref = get_rgb_image(prev_ref) if prev_ref is not None else black_img_rgb
-        
+
         disp_naive_cd = get_cd_display(cur_naive_cd) if cur_naive_cd is not None else black_img_rgb
 
         if im_refs['ref'] is not None:
@@ -286,7 +286,7 @@ def launch_comparison_viewer(run_dir):
         im_refs['ref2'] = ax_ref2.imshow(rgb_ref)
         im_refs['prev_ref'] = ax_prev_ref.imshow(rgb_prev_ref)
         im_refs['naive_cd'] = ax_naive_cd.imshow(disp_naive_cd, cmap='viridis' if (cur_naive_cd is not None and disp_naive_cd.ndim == 2) else None)
-            
+
         fig.canvas.draw_idle()
 
     def on_key_press(event):
@@ -299,10 +299,10 @@ def launch_comparison_viewer(run_dir):
 
     fig.canvas.mpl_connect('key_press_event', on_key_press)
     update_display()
-    
+
     plt.show()
 
 if __name__ == "__main__":
-    name = "run_009"
-    run_dir = os.path.join("..", "all", name)
+    name = "31UES_12_c5_g1" # "30SWH_24_c1_g1"
+    run_dir = os.path.join("forecasting", name)
     launch_comparison_viewer(run_dir)

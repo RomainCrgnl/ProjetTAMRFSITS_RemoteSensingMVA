@@ -23,13 +23,13 @@ TORCH_NUM_THREADS=4 PYTHONOPTIMIZE=TRUE PYTORCH_CUDA_ALLOC_CONF=expandable_segme
 --config ${PWD}/model/hydra_config/ \
 --algorithm TAMRFSITS \
 --strategy CUSTOM_FORECAST \
---width 1650 \
---patch_idx 1 \
---subtile_width 165 \
---margin 1 \
+--width 2100 \
+--patch_idx 0 \
+--subtile_width 210 \
+--margin 30 \
 --forecast_doy_start 318 \
---custom_forecast_context_size 5 \
---custom_forecast_gap_step 1 \
+--custom_forecast_context_size 1 \
+--custom_forecast_gap_step 4 \
 --custom_forecast_only_hr \
 --dt_orig 2022-01-01 \
 --show_subtile_progress \
@@ -38,6 +38,7 @@ TORCH_NUM_THREADS=4 PYTHONOPTIMIZE=TRUE PYTORCH_CUDA_ALLOC_CONF=expandable_segme
 --disable_metrics \
 --generate_animation \
 --custom_forecast_sliding_window \
+--coordinates_of_interest 1550 375
 
 # --generate_animation \
 #--custom_forecast_only_hr \
@@ -46,6 +47,6 @@ TORCH_NUM_THREADS=4 PYTHONOPTIMIZE=TRUE PYTORCH_CUDA_ALLOC_CONF=expandable_segme
 
 
 # INFOS:
-# 30SWH_24: --patch_idx: 19 / 25 ; --margin 1 (images 11 à 12)
-# 31TCJ_12: --patch_idx: 19 ; --margin 1 (images 8 à 22)
-# 31UES_12: --patch_idx 1 ; --margin 1 (images 5 à 8)
+# 30SWH_24: --patch_idx: 19 / 25 ; --margin 1 (images 11 à 12); --coordinates_of_interest 1900 5350
+#### 31TCJ_12: --patch_idx: 19 ; --margin 1 (images 8 à 22); --coordinates_of_interest 2300 5200
+# 31UES_12: --patch_idx 1 ; --margin 1 (images 5 à 8); --coordinates_of_interest 1650 375

@@ -7,7 +7,8 @@
 ├── dataset/*          # Containing the training / test samples
 ├── model/*            # Containing the pre-trained TAMRFSITS model
 ├── notebooks/*.ipynb  # Experimental studies
-├── src/*.py           # Code for the final solution
+├── src/*.py           # Code for results visualization
+├── forecasting/*      # Contains all the predictions + filters
 ├── .gitignore
 └── README.md
 ```

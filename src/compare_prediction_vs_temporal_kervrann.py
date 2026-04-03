@@ -303,6 +303,6 @@ def launch_comparison_viewer(run_dir):
     plt.show()
 
 if __name__ == "__main__":
-    name = "31UES_12_c5_g1" # "30SWH_24_c1_g1"
+    name = "30SWH_24_c5_g1" # 30SWH_24_c5_g1 31UES_12_c5_g1
     run_dir = os.path.join("forecasting", name)
     launch_comparison_viewer(run_dir)

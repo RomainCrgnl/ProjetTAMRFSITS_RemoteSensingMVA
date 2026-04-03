@@ -16,21 +16,16 @@ import sys
 import os
 from pathlib import Path
 
-# Model configuration
 SRCDIR = "."
 MODEL_PATH = "fresunet3_final.pth.tar"
 
-# Import all required libraries
 import numpy as np
 import torch
-import torch.nn as nn
 from torch.autograd import Variable
 import rasterio
-from PIL import Image
 import imageio
 import glob
 
-# Import the network architecture
 sys.path.append(SRCDIR)
 from fresunet import FresUNet
 
@@ -65,11 +60,10 @@ def reshape_for_torch(img):
 
 def compute_change_map(tif_path1, tif_path2, net):
     """Compute change detection map between two satellite images."""
-    # Convert TIFFs to RGB
     img1_rgb = tif_to_rgb(tif_path1)
     img2_rgb = tif_to_rgb(tif_path2)
 
-    # Normalize images
+    # normalize images
     img1_norm = normalize_image(img1_rgb)
     img2_norm = normalize_image(img2_rgb)
 
@@ -83,19 +77,19 @@ def compute_change_map(tif_path1, tif_path2, net):
             mode='edge'
         )
 
-    # Convert to PyTorch tensors
+    # convert to PyTorch tensors
     tensor1 = reshape_for_torch(img1_norm)
     tensor2 = reshape_for_torch(img2_norm)
 
-    # Add batch dimension
+    # batch dimension
     tensor1 = Variable(torch.unsqueeze(tensor1, 0).float())
     tensor2 = Variable(torch.unsqueeze(tensor2, 0).float())
 
-    # Run inference
+    # inference
     with torch.no_grad():
         output = net(tensor1, tensor2)
 
-    # Get predictions
+    # predictions
     _, predicted = torch.max(output.data, 1)
     change_map = (255 * predicted[0, :, :]).numpy().astype(np.uint8)
 

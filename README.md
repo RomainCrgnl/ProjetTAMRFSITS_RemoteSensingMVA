@@ -150,5 +150,7 @@ python src/convert_to_png.py
 ```
 This will compile all outputs into a single directory for quick inspection.
 
+---
+
 #### Time series example
 ![Simple Example](figures/example.png)

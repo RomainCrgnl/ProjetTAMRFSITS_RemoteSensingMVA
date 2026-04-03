@@ -152,5 +152,5 @@ This will compile all outputs into a single directory for quick inspection.
 
 ---
 
-#### Time series example
+#### Time series example:
 ![Simple Example](figures/example.png)

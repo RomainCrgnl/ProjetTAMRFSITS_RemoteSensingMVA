@@ -6,7 +6,7 @@ Extracting reliable information from dense Sentinel-2 satellite image time serie
 
 To solve this, this project replaces the target image with a predicted image. By using the TAMRFSITS Transformer-based framework, we predict a cloud-free estimation of the "present" based on a sliding window of past acquisitions. We then apply two distinct change detection algorithms (an extended multi-band Kervrann method and a Deep Learning U-Net) to compare this clean prediction against the actual acquisition.
 
-![Simple Example](illustration.png)
+![Simple Illustration](figures/illustration.png)
 
 
 ## Project architecture
@@ -150,3 +150,4 @@ python src/convert_to_png.py
 ```
 This will compile all outputs into a single directory for quick inspection.
 
+![Simple Example](figures/example.png)
